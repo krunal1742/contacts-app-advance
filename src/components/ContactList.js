@@ -18,7 +18,7 @@ const ContactList = (props) => {
   });
 
   return (
-    <div class="main">
+    <div className="main">
       <br />
       <h2>
         Contact List

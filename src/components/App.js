@@ -1,5 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  useNavigate,
+} from "react-router-dom";
 import "./App.css";
 import Header from "./Header";
 import AddContact from "./AddContact";
@@ -21,6 +26,11 @@ function App() {
     setContacts(newContactList);
   };
 
+  function AddContactWrapper(props) {
+    const navigate = useNavigate();
+    return <AddContact {...props} navigate={navigate} />;
+  }
+
   useEffect(() => {
     const retrieveContacts = JSON.parse(
       localStorage.getItem(LOCAL_STORAGE_KEY)
@@ -31,6 +41,7 @@ function App() {
   useEffect(() => {
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(contacts));
   }, [contacts]);
+
   return (
     <div className="ui container">
       <Router>
@@ -39,37 +50,19 @@ function App() {
           <Route
             path="/"
             exact
-            render={(props) => (
+            element={
               <ContactList
-                {...props}
-                getContactId={removeContactHandler}
                 contacts={contacts}
+                getContactId={removeContactHandler}
               />
-            )}
+            }
           />
           <Route
             path="/add"
-            render={(props) => (
-              <AddContact {...props} addContactHandler={addContactHandler} />
-            )}
+            element={
+              <AddContactWrapper addContactHandler={addContactHandler} />
+            }
           />
-
-          {/* <Route
-            path="/"
-            exact
-            Component={() => (
-              <ContactList
-                getContactId={removeContactHandler}
-                contacts={contacts}
-              />
-            )}
-          />
-          <Route
-            path="/add"
-            Component={() => (
-              <AddContact addContactHandler={addContactHandler} />
-            )}
-          /> */}
         </Routes>
       </Router>
     </div>
