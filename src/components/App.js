@@ -9,6 +9,7 @@ import "./App.css";
 import Header from "./Header";
 import AddContact from "./AddContact";
 import ContactList from "./ContactList";
+import ContactDetail from "./ContactDetail";
 import { v4 as uuidv4 } from "uuid";
 function App() {
   const LOCAL_STORAGE_KEY = "contacts";
@@ -63,6 +64,7 @@ function App() {
               <AddContactWrapper addContactHandler={addContactHandler} />
             }
           />
+          <Route path="/contact/:id" Component={ContactDetail} />
         </Routes>
       </Router>
     </div>
