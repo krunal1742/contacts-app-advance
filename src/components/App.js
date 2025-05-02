@@ -11,12 +11,23 @@ import AddContact from "./AddContact";
 import ContactList from "./ContactList";
 import ContactDetail from "./ContactDetail";
 import { v4 as uuidv4 } from "uuid";
+import api from "../api/contacts";
 function App() {
   const LOCAL_STORAGE_KEY = "contacts";
   const [contacts, setContacts] = useState([]);
 
-  const addContactHandler = (contact) => {
-    setContacts([...contacts, { id: uuidv4(), ...contact }]);
+  const addContactHandler = async (contact) => {
+    const request = {
+      id: uuidv4(),
+      ...contact,
+    };
+    const response = await api.post("/contacts", request);
+    setContacts([...contacts, response.data]);
+  };
+
+  const retrieveAllContacts = async () => {
+    const response = await api.get("/contacts");
+    return response.data;
   };
 
   const removeContactHandler = (id) => {
@@ -32,16 +43,17 @@ function App() {
     return <AddContact {...props} navigate={navigate} />;
   }
 
-  useEffect(() => {
-    const retrieveContacts = JSON.parse(
-      localStorage.getItem(LOCAL_STORAGE_KEY)
-    );
-    if (retrieveContacts) setContacts(retrieveContacts);
+  useEffect(async () => {
+    const allcontacts = await retrieveAllContacts();
+    if (allcontacts) setContacts(allcontacts);
+    // getAllContacts();
+    // const retrieveContacts = retrieveAllContacts();
+    // if (retrieveContacts) setContacts(retrieveContacts);
   }, []);
 
-  useEffect(() => {
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(contacts));
-  }, [contacts]);
+  // useEffect(() => {
+  //   // localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(contacts));
+  // }, [contacts]);
 
   return (
     <div className="ui container">
