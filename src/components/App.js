@@ -4,17 +4,21 @@ import {
   Routes,
   Route,
   useNavigate,
+  useLocation,
 } from "react-router-dom";
 import "./App.css";
 import Header from "./Header";
 import AddContact from "./AddContact";
+import EditContact from "./EditContact";
 import ContactList from "./ContactList";
 import ContactDetail from "./ContactDetail";
 import { v4 as uuidv4 } from "uuid";
 import api from "../api/contacts";
-function App() {
+export default function App() {
   const LOCAL_STORAGE_KEY = "contacts";
   const [contacts, setContacts] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
 
   const addContactHandler = async (contact) => {
     const request = {
@@ -25,12 +29,24 @@ function App() {
     setContacts([...contacts, response.data]);
   };
 
+  const updateContactHandler = async (contact) => {
+    const response = await api.put(`/contacts/${contact.id}`, contact);
+    const { id, name, email } = response.data;
+    setContacts(
+      contacts.map((contact) => {
+        return contact.id === id ? { ...response.data } : contact;
+      })
+    );
+  };
+
   const retrieveAllContacts = async () => {
     const response = await api.get("/contacts");
     return response.data;
   };
 
-  const removeContactHandler = (id) => {
+  const removeContactHandler = async (id) => {
+    await api.delete(`/contacts/${id}`);
+
     const newContactList = contacts.filter((contact) => {
       return contact.id !== id;
     });
@@ -38,9 +54,30 @@ function App() {
     setContacts(newContactList);
   };
 
+  const searchHandler = (searchTerm) => {
+    setSearchTerm(searchTerm);
+    if (searchTerm !== "") {
+      const newContactList = contacts.filter((contact) => {
+        return Object.values(contact)
+          .join(" ")
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase());
+      });
+      setSearchResults(newContactList);
+    } else {
+      setSearchResults(contacts);
+    }
+  };
+
   function AddContactWrapper(props) {
     const navigate = useNavigate();
     return <AddContact {...props} navigate={navigate} />;
+  }
+
+  function UpdateContactWrapper(props) {
+    const navigate = useNavigate();
+    const location = useLocation();
+    return <EditContact {...props} navigate={navigate} location={location} />;
   }
 
   useEffect(async () => {
@@ -65,8 +102,10 @@ function App() {
             exact
             element={
               <ContactList
-                contacts={contacts}
+                contacts={searchTerm.length < 3 ? contacts : searchResults}
                 getContactId={removeContactHandler}
+                term={searchTerm}
+                searchKeyword={searchHandler}
               />
             }
           />
@@ -77,10 +116,16 @@ function App() {
             }
           />
           <Route path="/contact/:id" Component={ContactDetail} />
+          <Route
+            path="/edit"
+            element={
+              <UpdateContactWrapper
+                updateContactHandler={updateContactHandler}
+              />
+            }
+          />
         </Routes>
       </Router>
     </div>
   );
 }
-
-export default App;

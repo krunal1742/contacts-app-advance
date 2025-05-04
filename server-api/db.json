@@ -1,0 +1,14 @@
+{
+  "contacts": [
+    {
+      "id": "ca521abf-0fbb-4501-ba3f-657e2234c516",
+      "name": "Krunal New",
+      "email": "gajjarman@gmail.com"
+    },
+    {
+      "id": "226907be-f693-4fce-aa8b-ca53a112b0e6",
+      "name": "john doe",
+      "email": "doej@gmail.com"
+    }
+  ]
+}
